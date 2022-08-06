@@ -2,7 +2,8 @@ use std::cmp::{max, min};
 
 use rltk::{RandomNumberGenerator, RGB, Rltk};
 
-use crate::map::rectangle::Rectangle;
+use crate::map::room::Room;
+use crate::Position;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum TileType {
@@ -14,10 +15,10 @@ pub fn map_index(x: i32, y: i32) -> usize {
     (y as usize * crate::WIDTH as usize) + x as usize
 }
 
-pub fn new_map(width: i32, height: i32) -> (Vec<Rectangle>, Vec<TileType>) {
+pub fn new_map(width: i32, height: i32) -> (Position, Vec<TileType>) {
     let mut map = vec![TileType::Wall; (width * height) as usize];
 
-    let mut rooms: Vec<Rectangle> = Vec::new();
+    let mut rooms: Vec<Room> = Vec::new();
     const MAX_ROOMS: i32 = 30;
     const MIN_SIZE: i32 = 6;
     const MAX_SIZE: i32 = 10;
@@ -30,7 +31,11 @@ pub fn new_map(width: i32, height: i32) -> (Vec<Rectangle>, Vec<TileType>) {
         let x = rng.roll_dice(1, width - room_width - 1) - 1;
         let y = rng.roll_dice(1, height - room_height - 1) - 1;
 
-        let new_room = Rectangle::new(x, y, room_width, room_height);
+        let new_room = Room::new(
+            Position {x, y},
+            room_width,
+            room_height
+        );
 
         if is_placement_valid(&rooms, &new_room) {
             apply_room_to_map(&new_room, &mut map);
@@ -43,10 +48,10 @@ pub fn new_map(width: i32, height: i32) -> (Vec<Rectangle>, Vec<TileType>) {
         }
     }
 
-    (rooms, map)
+    (rooms[0].center(), map)
 }
 
-fn is_placement_valid(rooms: &Vec<Rectangle>, new_room: &Rectangle) -> bool {
+fn is_placement_valid(rooms: &Vec<Room>, new_room: &Room) -> bool {
     for other_room in rooms.iter() {
         if new_room.intersect(other_room) {
             return false;
@@ -56,15 +61,15 @@ fn is_placement_valid(rooms: &Vec<Rectangle>, new_room: &Rectangle) -> bool {
     true
 }
 
-fn apply_room_to_map(room: &Rectangle, map: &mut [TileType]) {
-    for y in room.y1 + 1..=room.y2 {
-        for x in room.x1 + 1..=room.x2 {
+fn apply_room_to_map(room: &Room, map: &mut [TileType]) {
+    for y in room.first.y + 1..=room.second.y {
+        for x in room.first.x + 1..=room.second.x {
             map[map_index(x, y)] = TileType::Floor;
         }
     }
 }
 
-fn link_rooms_with_tunnels(rooms: &Vec<Rectangle>, new_room: &Rectangle, mut map: &mut Vec<TileType>, rng: &mut RandomNumberGenerator) {
+fn link_rooms_with_tunnels(rooms: &Vec<Room>, new_room: &Room, mut map: &mut Vec<TileType>, rng: &mut RandomNumberGenerator) {
     let new_room_center = new_room.center();
     let previous_room_center = rooms[rooms.len() - 1].center();
 
@@ -78,18 +83,22 @@ fn link_rooms_with_tunnels(rooms: &Vec<Rectangle>, new_room: &Rectangle, mut map
 }
 
 fn apply_horizontal_tunnel(map: &mut [TileType], x1: i32, x2: i32, y: i32) {
+    let map_size = (crate::WIDTH * crate::HEIGHT) as usize;
+
     for x in min(x1, x2)..=max(x1, x2) {
         let idx = map_index(x, y);
-        if idx > 0 && idx < 80 * 50 {
+        if idx > 0 && idx < map_size {
             map[idx as usize] = TileType::Floor;
         }
     }
 }
 
 fn apply_vertical_tunnel(map: &mut [TileType], y1: i32, y2: i32, x: i32) {
+    let map_size = (crate::WIDTH * crate::HEIGHT) as usize;
+
     for y in min(y1, y2)..=max(y1, y2) {
         let idx = map_index(x, y);
-        if idx > 0 && idx < 80 * 50 {
+        if idx > 0 && idx < map_size {
             map[idx as usize] = TileType::Floor;
         }
     }

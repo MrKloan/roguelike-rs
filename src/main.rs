@@ -26,7 +26,7 @@ fn main() -> rltk::BError {
         world: World::new(),
     };
 
-    let (rooms, map) = new_map(WIDTH, HEIGHT);
+    let (starting_position, map) = new_map(WIDTH, HEIGHT);
     state.world.insert(map);
 
     state.world.register::<Player>();
@@ -38,7 +38,7 @@ fn main() -> rltk::BError {
         .world
         .create_entity()
         .with(Player {})
-        .with(rooms[0].center())
+        .with(starting_position)
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
             foreground: RGB::named(rltk::YELLOW),

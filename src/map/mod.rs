@@ -1,4 +1,4 @@
 pub use map::*;
 
 mod map;
-mod rectangle;
+mod room;
