@@ -17,6 +17,7 @@ pub struct Map {
     pub width: i32,
     pub height: i32,
     pub tiles: Vec<TileType>,
+    pub revealed_tiles: Vec<bool>,
     pub rooms: Vec<Room>,
 }
 
@@ -26,6 +27,7 @@ impl Map {
             width,
             height,
             tiles: vec![TileType::Wall; (width * height) as usize],
+            revealed_tiles: vec![false; (width * height) as usize],
             rooms: Vec::new(),
         };
 
@@ -127,13 +129,14 @@ impl Map {
         let mut players = world.write_storage::<Player>();
         let mut viewsheds = world.write_storage::<Viewshed>();
 
-        for (_player, viewshed) in (&mut players, &mut viewsheds).join() {
+        for (_player, _viewshed) in (&mut players, &mut viewsheds).join() {
             let mut y = 0;
             let mut x = 0;
 
-            for tile in self.tiles.iter() {
-                let tile_point = Point::new(x, y);
-                if viewshed.visible_tiles.contains(&tile_point) {
+            for (index, tile) in self.tiles.iter().enumerate() {
+                // let tile_point = Point::new(x, y);
+                // if viewshed.visible_tiles.contains(&tile_point) {
+                if self.revealed_tiles[index] {
                     match tile {
                         TileType::Floor => {
                             context.set(
