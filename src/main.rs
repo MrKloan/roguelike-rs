@@ -5,7 +5,7 @@ use specs::prelude::*;
 
 use crate::components::{Position, Renderable};
 use crate::ia::LeftWalker;
-use crate::map::new_map;
+use crate::map::{new_map};
 use crate::player::Player;
 use crate::state::State;
 
@@ -26,7 +26,8 @@ fn main() -> rltk::BError {
         world: World::new(),
     };
 
-    state.world.insert(new_map(WIDTH, HEIGHT));
+    let (rooms, map) = new_map(WIDTH, HEIGHT);
+    state.world.insert(map);
 
     state.world.register::<Player>();
     state.world.register::<Position>();
@@ -37,7 +38,7 @@ fn main() -> rltk::BError {
         .world
         .create_entity()
         .with(Player {})
-        .with(Position { x: 40, y: 25 })
+        .with(rooms[0].center())
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
             foreground: RGB::named(rltk::YELLOW),
