@@ -25,7 +25,7 @@ impl GameState for State {
         self.run_systems();
 
         let map = self.world.fetch::<Map>();
-        map.draw(context);
+        map.draw(&self.world, context);
 
         let positions = self.world.read_storage::<Position>();
         let renderables = self.world.read_storage::<Renderable>();
