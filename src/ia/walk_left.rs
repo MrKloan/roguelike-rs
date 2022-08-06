@@ -15,7 +15,7 @@ impl<'a> System<'a> for WalkLeft {
         for (_left_walker, position) in (&left_walkers, &mut positions).join() {
             position.x -= 1;
             if position.x < 0 {
-                position.x = crate::WIDTH - 1;
+                position.x = 80 - 1;
             }
         }
     }

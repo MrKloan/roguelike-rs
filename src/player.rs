@@ -5,7 +5,7 @@ use specs::prelude::*;
 use specs_derive::Component;
 
 use crate::components::Position;
-use crate::map::{TileType, map_index};
+use crate::map::{Map, TileType};
 use crate::State;
 
 #[derive(Component)]
@@ -14,13 +14,13 @@ pub struct Player {}
 pub fn try_move_player(delta_x: i32, delta_y: i32, world: &mut World) {
     let players = world.read_storage::<Player>();
     let mut positions = world.write_storage::<Position>();
-    let map = world.fetch::<Vec<TileType>>();
+    let map = world.fetch::<Map>();
 
     for (_player, position) in (&players, &mut positions).join() {
-        let destination_idx = map_index(position.x + delta_x, position.y + delta_y);
-        if map[destination_idx] != TileType::Wall {
-            position.x = min(crate::WIDTH - 1, max(0, position.x + delta_x));
-            position.y = min(crate::HEIGHT - 1, max(0, position.y + delta_y));
+        let destination_index = map.index_of(position.x + delta_x, position.y + delta_y);
+        if map.tiles[destination_index] != TileType::Wall {
+            position.x = min(map.width - 1, max(0, position.x + delta_x));
+            position.y = min(map.height - 1, max(0, position.y + delta_y));
         }
     }
 }

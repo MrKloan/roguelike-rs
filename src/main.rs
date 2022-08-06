@@ -5,7 +5,7 @@ use specs::prelude::*;
 
 use crate::components::{Position, Renderable};
 use crate::ia::LeftWalker;
-use crate::map::{new_map};
+use crate::map::Map;
 use crate::player::Player;
 use crate::state::State;
 
@@ -15,10 +15,10 @@ mod map;
 mod player;
 mod state;
 
-const WIDTH: i32 = 80;
-const HEIGHT: i32 = 50;
-
 fn main() -> rltk::BError {
+    const WIDTH: i32 = 80;
+    const HEIGHT: i32 = 50;
+
     let context = RltkBuilder::simple(WIDTH, HEIGHT)?
         .with_title("Roguelike Tutorial")
         .build()?;
@@ -26,7 +26,8 @@ fn main() -> rltk::BError {
         world: World::new(),
     };
 
-    let (starting_position, map) = new_map(WIDTH, HEIGHT);
+    let map = Map::new(WIDTH, HEIGHT);
+    let starting_position = map.starting_position();
     state.world.insert(map);
 
     state.world.register::<Player>();

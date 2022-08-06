@@ -3,7 +3,7 @@ use specs::prelude::*;
 
 use crate::components::{Position, Renderable};
 use crate::ia::WalkLeft;
-use crate::map::{draw_map, TileType};
+use crate::map::Map;
 use crate::player::player_input;
 
 pub struct State {
@@ -24,8 +24,8 @@ impl GameState for State {
         player_input(self, context);
         self.run_systems();
 
-        let map = self.world.fetch::<Vec<TileType>>();
-        draw_map(&map, context);
+        let map = self.world.fetch::<Map>();
+        map.draw(context);
 
         let positions = self.world.read_storage::<Position>();
         let renderables = self.world.read_storage::<Renderable>();
