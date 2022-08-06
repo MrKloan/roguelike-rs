@@ -3,17 +3,16 @@
 use rltk::{RGB, RltkBuilder};
 use specs::prelude::*;
 
-use crate::components::{Position, Renderable};
-use crate::ia::LeftWalker;
+use crate::components::{Position, Renderable, Viewshed};
 use crate::map::Map;
 use crate::player::Player;
 use crate::state::State;
 
 mod components;
-mod ia;
 mod map;
 mod player;
 mod state;
+mod visibility_system;
 
 fn main() -> rltk::BError {
     const WIDTH: i32 = 80;
@@ -33,7 +32,7 @@ fn main() -> rltk::BError {
     state.world.register::<Player>();
     state.world.register::<Position>();
     state.world.register::<Renderable>();
-    state.world.register::<LeftWalker>();
+    state.world.register::<Viewshed>();
 
     state
         .world
@@ -44,6 +43,10 @@ fn main() -> rltk::BError {
             glyph: rltk::to_cp437('@'),
             foreground: RGB::named(rltk::YELLOW),
             background: RGB::named(rltk::BLACK),
+        })
+        .with(Viewshed {
+            visible_tiles: Vec::new(),
+            range: 8,
         })
         .build();
 

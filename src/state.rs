@@ -2,9 +2,9 @@ use rltk::{GameState, Rltk};
 use specs::prelude::*;
 
 use crate::components::{Position, Renderable};
-use crate::ia::WalkLeft;
 use crate::map::Map;
 use crate::player::player_input;
+use crate::visibility_system::VisibilitySystem;
 
 pub struct State {
     pub world: World,
@@ -12,7 +12,7 @@ pub struct State {
 
 impl State {
     fn run_systems(&mut self) {
-        WalkLeft {}.run_now(&self.world);
+        VisibilitySystem {}.run_now(&self.world);
         self.world.maintain();
     }
 }
