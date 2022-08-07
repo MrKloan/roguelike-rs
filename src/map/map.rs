@@ -18,6 +18,7 @@ pub struct Map {
     pub height: i32,
     pub tiles: Vec<TileType>,
     pub revealed_tiles: Vec<bool>,
+    pub visible_tiles: Vec<bool>,
     pub rooms: Vec<Room>,
 }
 
@@ -28,6 +29,7 @@ impl Map {
             height,
             tiles: vec![TileType::Wall; (width * height) as usize],
             revealed_tiles: vec![false; (width * height) as usize],
+            visible_tiles: vec![false; (width * height) as usize],
             rooms: Vec::new(),
         };
 
@@ -138,29 +140,21 @@ impl Map {
             let mut x = 0;
 
             for (index, tile) in self.tiles.iter().enumerate() {
-                // let tile_point = Point::new(x, y);
-                // if viewshed.visible_tiles.contains(&tile_point) {
                 if self.revealed_tiles[index] {
-                    match tile {
-                        TileType::Floor => {
-                            context.set(
-                                x,
-                                y,
-                                RGB::from_f32(0.5, 0.5, 0.5),
-                                RGB::from_f32(0., 0., 0.),
-                                rltk::to_cp437('.'),
-                            );
-                        }
-                        TileType::Wall => {
-                            context.set(
-                                x,
-                                y,
-                                RGB::from_f32(0.0, 1.0, 0.0),
-                                RGB::from_f32(0., 0., 0.),
-                                rltk::to_cp437('#'),
-                            );
-                        }
+                    let glyph = match tile {
+                        TileType::Floor => rltk::to_cp437('.'),
+                        TileType::Wall => rltk::to_cp437('#'),
+                    };
+                    let mut foreground = match tile {
+                        TileType::Floor => RGB::from_f32(0.0, 0.5, 0.5),
+                        TileType::Wall => RGB::from_f32(0., 1.0, 0.),
+                    };
+
+                    if !self.visible_tiles[index] {
+                        foreground = foreground.to_greyscale();
                     }
+
+                    context.set(x, y, foreground, RGB::from_f32(0., 0., 0.), glyph);
                 }
 
                 x += 1;
