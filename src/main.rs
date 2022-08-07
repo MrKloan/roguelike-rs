@@ -26,8 +26,6 @@ fn main() -> rltk::BError {
     };
 
     let map = Map::new(WIDTH, HEIGHT);
-    let starting_position = map.starting_position();
-    state.world.insert(map);
 
     state.world.register::<Player>();
     state.world.register::<Position>();
@@ -38,14 +36,16 @@ fn main() -> rltk::BError {
         .world
         .create_entity()
         .with(Player {})
-        .with(starting_position)
+        .with(map.starting_position())
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
             foreground: RGB::named(rltk::YELLOW),
             background: RGB::named(rltk::BLACK),
         })
-        .with(Viewshed::new(8))
+        .with(Viewshed::new(8, &map))
         .build();
+
+    state.world.insert(map);
 
     rltk::main_loop(context, state)
 }

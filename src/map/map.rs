@@ -17,8 +17,6 @@ pub struct Map {
     pub width: i32,
     pub height: i32,
     pub tiles: Vec<TileType>,
-    pub revealed_tiles: Vec<bool>,
-    pub visible_tiles: Vec<bool>,
     pub rooms: Vec<Room>,
 }
 
@@ -28,8 +26,6 @@ impl Map {
             width,
             height,
             tiles: vec![TileType::Wall; (width * height) as usize],
-            revealed_tiles: vec![false; (width * height) as usize],
-            visible_tiles: vec![false; (width * height) as usize],
             rooms: Vec::new(),
         };
 
@@ -135,12 +131,12 @@ impl Map {
         let mut players = world.write_storage::<Player>();
         let mut viewsheds = world.write_storage::<Viewshed>();
 
-        for (_player, _viewshed) in (&mut players, &mut viewsheds).join() {
+        for (_player, viewshed) in (&mut players, &mut viewsheds).join() {
             let mut y = 0;
             let mut x = 0;
 
             for (index, tile) in self.tiles.iter().enumerate() {
-                if self.revealed_tiles[index] {
+                if viewshed.revealed_tiles[index] {
                     let glyph = match tile {
                         TileType::Floor => rltk::to_cp437('.'),
                         TileType::Wall => rltk::to_cp437('#'),
@@ -150,7 +146,7 @@ impl Map {
                         TileType::Wall => RGB::from_f32(0., 1.0, 0.),
                     };
 
-                    if !self.visible_tiles[index] {
+                    if !viewshed.visible_tiles[index] {
                         foreground = foreground.to_greyscale();
                     }
 
