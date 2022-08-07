@@ -4,9 +4,9 @@ use rltk::{Rltk, VirtualKeyCode};
 use specs::prelude::*;
 use specs_derive::Component;
 
+use crate::{State, Viewshed};
 use crate::components::Position;
 use crate::map::{Map, TileType};
-use crate::State;
 
 #[derive(Component)]
 pub struct Player {}
@@ -14,13 +14,16 @@ pub struct Player {}
 pub fn try_move_player(delta_x: i32, delta_y: i32, world: &mut World) {
     let players = world.read_storage::<Player>();
     let mut positions = world.write_storage::<Position>();
+    let mut viewsheds = world.write_storage::<Viewshed>();
+
     let map = world.fetch::<Map>();
 
-    for (_player, position) in (&players, &mut positions).join() {
+    for (_player, position, viewshed) in (&players, &mut positions, &mut viewsheds).join() {
         let destination_index = map.index_of(position.x + delta_x, position.y + delta_y);
         if map.tiles[destination_index] != TileType::Wall {
             position.x = min(map.width - 1, max(0, position.x + delta_x));
             position.y = min(map.height - 1, max(0, position.y + delta_y));
+            viewshed.should_update = true;
         }
     }
 }

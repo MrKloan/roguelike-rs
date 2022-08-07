@@ -44,10 +44,7 @@ fn main() -> rltk::BError {
             foreground: RGB::named(rltk::YELLOW),
             background: RGB::named(rltk::BLACK),
         })
-        .with(Viewshed {
-            visible_tiles: Vec::new(),
-            range: 8,
-        })
+        .with(Viewshed::new(8))
         .build();
 
     rltk::main_loop(context, state)

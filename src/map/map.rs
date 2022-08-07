@@ -125,6 +125,10 @@ impl Map {
         self.rooms[0].center()
     }
 
+    pub fn is_in_bound(&self, point: &Point) -> bool {
+        point.x >= 0 && point.x < self.width && point.y >= 0 && point.y < self.height
+    }
+
     pub fn draw(&self, world: &World, context: &mut Rltk) {
         let mut players = world.write_storage::<Player>();
         let mut viewsheds = world.write_storage::<Viewshed>();
