@@ -3,18 +3,19 @@
 use rltk::{RGB, RltkBuilder};
 use specs::prelude::*;
 
-use crate::components::{Position, Renderable, Viewshed};
+use crate::components::{Position, Renderable};
 use crate::map::Map;
 use crate::monster::Monster;
 use crate::player::Player;
 use crate::state::State;
+use crate::visibility::Viewshed;
 
 mod components;
 mod map;
 mod monster;
 mod player;
 mod state;
-mod visibility_system;
+mod visibility;
 
 fn main() -> rltk::BError {
     const WIDTH: i32 = 80;

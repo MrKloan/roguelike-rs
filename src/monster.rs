@@ -2,7 +2,8 @@ use rltk::console;
 use specs::prelude::*;
 use specs_derive::Component;
 
-use super::{Position, Viewshed};
+use crate::components::Position;
+use crate::visibility::Viewshed;
 
 #[derive(Component, Debug)]
 pub struct Monster {}

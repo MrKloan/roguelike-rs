@@ -3,9 +3,10 @@ use std::cmp::{max, min};
 use rltk::{Algorithm2D, BaseMap, Point, RandomNumberGenerator, RGB, Rltk};
 use specs::prelude::*;
 
-use crate::components::{Position, Viewshed};
+use crate::components::Position;
 use crate::map::room::Room;
 use crate::player::Player;
+use crate::Viewshed;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum TileType {

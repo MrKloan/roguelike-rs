@@ -6,7 +6,7 @@ use crate::components::{Position, Renderable};
 use crate::map::Map;
 use crate::monster::MonsterAI;
 use crate::player::player_input;
-use crate::visibility_system::VisibilitySystem;
+use crate::visibility::VisibilitySystem;
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum RunState {
