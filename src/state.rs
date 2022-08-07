@@ -1,6 +1,7 @@
 use rltk::{GameState, Rltk};
 use specs::prelude::*;
 
+use crate::{Player, Viewshed};
 use crate::components::{Position, Renderable};
 use crate::map::Map;
 use crate::player::player_input;
@@ -29,15 +30,23 @@ impl GameState for State {
 
         let positions = self.world.read_storage::<Position>();
         let renderables = self.world.read_storage::<Renderable>();
+        let players = self.world.read_storage::<Player>();
+        let viewsheds = self.world.read_storage::<Viewshed>();
+        let map = self.world.fetch::<Map>();
 
         for (position, renderable) in (&positions, &renderables).join() {
-            context.set(
-                position.x,
-                position.y,
-                renderable.foreground,
-                renderable.background,
-                renderable.glyph,
-            );
+            for (_player, viewshed) in (&players, &viewsheds).join() {
+                let map_index = map.index_of(position.x, position.y);
+                if viewshed.visible_tiles[map_index] {
+                    context.set(
+                        position.x,
+                        position.y,
+                        renderable.foreground,
+                        renderable.background,
+                        renderable.glyph,
+                    );
+                }
+            }
         }
     }
 }
