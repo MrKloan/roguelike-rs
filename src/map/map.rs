@@ -1,6 +1,6 @@
 use std::cmp::{max, min};
 
-use rltk::{Algorithm2D, BaseMap, Point, RandomNumberGenerator, RGB, Rltk};
+use rltk::{Algorithm2D, BaseMap, Point, RandomNumberGenerator, RGB, Rltk, SmallVec};
 use specs::prelude::*;
 
 use crate::components::Position;
@@ -120,12 +120,25 @@ impl Map {
         (y as usize * self.width as usize) + x as usize
     }
 
+    pub fn position_of(&self, index: usize) -> (i32, i32) {
+        (index as i32 % self.width, index as i32 / self.width)
+    }
+
     pub fn starting_position(&self) -> Position {
         self.rooms[0].center()
     }
 
-    pub fn is_in_bound(&self, point: &Point) -> bool {
-        point.x >= 0 && point.x < self.width && point.y >= 0 && point.y < self.height
+    pub fn is_in_bound(&self, x: i32, y: i32) -> bool {
+        x >= 0 && x < self.width && y >= 0 && y < self.height
+    }
+
+    fn is_exit_valid(&self, x: i32, y: i32) -> bool {
+        if !self.is_in_bound(x, y) {
+            return false;
+        }
+        let index = self.index_of(x, y);
+
+        !self.is_opaque(index)
     }
 
     pub fn draw(&self, world: &World, context: &mut Rltk) {
@@ -167,6 +180,28 @@ impl Map {
 impl BaseMap for Map {
     fn is_opaque(&self, index: usize) -> bool {
         self.tiles[index as usize] == TileType::Wall
+    }
+
+    fn get_available_exits(&self, index: usize) -> SmallVec<[(usize, f32); 10]> {
+        let mut exits = SmallVec::new();
+        let (x, y) = self.position_of(index);
+        let width = self.width as usize;
+
+        // Cardinal directions
+        if self.is_exit_valid(x - 1, y) { exits.push((index - 1, 1.0)) };
+        if self.is_exit_valid(x + 1, y) { exits.push((index + 1, 1.0)) };
+        if self.is_exit_valid(x, y - 1) { exits.push((index - width, 1.0)) };
+        if self.is_exit_valid(x, y + 1) { exits.push((index + width, 1.0)) };
+
+        exits
+    }
+
+    fn get_pathing_distance(&self, from_index: usize, to_index: usize) -> f32 {
+        let width = self.width as usize;
+        let from = Point::new(from_index % width, from_index / width);
+        let to = Point::new(to_index % width, to_index / width);
+
+        rltk::DistanceAlg::Pythagoras.distance2d(from, to)
     }
 }
 

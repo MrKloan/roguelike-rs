@@ -46,7 +46,7 @@ impl<'a> System<'a> for VisibilitySystem {
 
             field_of_view(Point::new(position.x, position.y), viewshed.range, &*map)
                 .iter()
-                .filter(|point| map.is_in_bound(&point))
+                .filter(|point| map.is_in_bound(point.x, point.y))
                 .for_each(|point| {
                     let index = map.index_of(point.x, point.y);
                     viewshed.visible_tiles[index] = true;
