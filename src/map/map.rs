@@ -19,6 +19,7 @@ pub struct Map {
     pub height: i32,
     pub tiles: Vec<TileType>,
     pub rooms: Vec<Room>,
+    blocked_tiles: Vec<bool>,
 }
 
 impl Map {
@@ -27,6 +28,7 @@ impl Map {
             width,
             height,
             tiles: vec![TileType::Wall; (width * height) as usize],
+            blocked_tiles: vec![true; (width * height) as usize],
             rooms: Vec::new(),
         };
 
@@ -100,7 +102,7 @@ impl Map {
         for x in min(x1, x2)..=max(x1, x2) {
             let index = self.index_of(x, y);
             if index > 0 && index < map_size {
-                self.tiles[index as usize] = TileType::Floor;
+                self.tiles[index] = TileType::Floor;
             }
         }
     }
@@ -111,9 +113,20 @@ impl Map {
         for y in min(y1, y2)..=max(y1, y2) {
             let index = self.index_of(x, y);
             if index > 0 && index < map_size {
-                self.tiles[index as usize] = TileType::Floor;
+                self.tiles[index] = TileType::Floor;
             }
         }
+    }
+
+    pub fn update_blocked_tiles(&mut self) {
+        for (index, _) in self.tiles.iter().enumerate() {
+            self.blocked_tiles[index] = self.is_opaque(index);
+        }
+    }
+
+    pub fn block_tile_at(&mut self, position: &Position) {
+        let index = self.index_of(position.x, position.y);
+        self.blocked_tiles[index] = true;
     }
 
     pub fn index_of(&self, x: i32, y: i32) -> usize {
@@ -136,9 +149,9 @@ impl Map {
         if !self.is_in_bound(x, y) {
             return false;
         }
-        let index = self.index_of(x, y);
 
-        !self.is_opaque(index)
+        let index = self.index_of(x, y);
+        !self.blocked_tiles[index]
     }
 
     pub fn draw(&self, world: &World, context: &mut Rltk) {

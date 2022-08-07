@@ -3,7 +3,7 @@ use specs::prelude::*;
 
 use crate::{Player, Viewshed};
 use crate::components::{Position, Renderable};
-use crate::map::Map;
+use crate::map::{Map, MapIndexingSystem};
 use crate::monster::MonsterAI;
 use crate::player::player_input;
 use crate::visibility::VisibilitySystem;
@@ -30,6 +30,8 @@ impl State {
     fn run_systems(&mut self) {
         VisibilitySystem {}.run_now(&self.world);
         MonsterAI {}.run_now(&self.world);
+        MapIndexingSystem {}.run_now(&self.world);
+
         self.world.maintain();
     }
 

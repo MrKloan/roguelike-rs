@@ -3,7 +3,7 @@
 use rltk::{RGB, RltkBuilder};
 use specs::prelude::*;
 
-use crate::components::{Position, Renderable};
+use crate::components::{BlocksTile, Position, Renderable};
 use crate::map::Map;
 use crate::monster::Monster;
 use crate::player::Player;
@@ -28,14 +28,15 @@ fn main() -> rltk::BError {
 
     let map = Map::new(WIDTH, HEIGHT);
 
-    state.world.register::<Player>();
+    state.world.register::<BlocksTile>();
     state.world.register::<Monster>();
+    state.world.register::<Player>();
     state.world.register::<Position>();
     state.world.register::<Renderable>();
     state.world.register::<Viewshed>();
 
-    add_player(&mut state, &map);
     add_monsters(&mut state, &map);
+    add_player(&mut state, &map);
 
     state.world.insert(map);
 
@@ -80,6 +81,7 @@ fn add_monsters(state: &mut State, map: &Map) {
                 background: RGB::named(rltk::BLACK),
             })
             .with(Viewshed::new(8, map))
+            .with(BlocksTile {})
             .build();
     }
 }
