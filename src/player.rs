@@ -7,11 +7,25 @@ use specs_derive::Component;
 use crate::{State, Viewshed};
 use crate::components::Position;
 use crate::map::{Map, TileType};
+use crate::state::RunState;
 
 #[derive(Component)]
 pub struct Player {}
 
-pub fn try_move_player(delta_x: i32, delta_y: i32, world: &mut World) {
+pub fn player_input(state: &mut State, context: &mut Rltk) -> RunState {
+    return match context.key {
+        None => RunState::Paused,
+        Some(key) => match key {
+            VirtualKeyCode::Left => try_move_player(-1, 0, &mut state.world),
+            VirtualKeyCode::Right => try_move_player(1, 0, &mut state.world),
+            VirtualKeyCode::Up => try_move_player(0, -1, &mut state.world),
+            VirtualKeyCode::Down => try_move_player(0, 1, &mut state.world),
+            _ => RunState::Paused
+        },
+    }
+}
+
+fn try_move_player(delta_x: i32, delta_y: i32, world: &mut World) -> RunState {
     let players = world.read_storage::<Player>();
     let mut positions = world.write_storage::<Position>();
     let mut viewsheds = world.write_storage::<Viewshed>();
@@ -26,17 +40,6 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, world: &mut World) {
             viewshed.should_update = true;
         }
     }
-}
 
-pub fn player_input(state: &mut State, context: &mut Rltk) {
-    match context.key {
-        None => {}
-        Some(key) => match key {
-            VirtualKeyCode::Left => try_move_player(-1, 0, &mut state.world),
-            VirtualKeyCode::Right => try_move_player(1, 0, &mut state.world),
-            VirtualKeyCode::Up => try_move_player(0, -1, &mut state.world),
-            VirtualKeyCode::Down => try_move_player(0, 1, &mut state.world),
-            _ => {}
-        },
-    }
+    RunState::Running
 }

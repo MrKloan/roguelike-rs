@@ -5,11 +5,13 @@ use specs::prelude::*;
 
 use crate::components::{Position, Renderable, Viewshed};
 use crate::map::Map;
+use crate::monster::Monster;
 use crate::player::Player;
 use crate::state::State;
 
 mod components;
 mod map;
+mod monster;
 mod player;
 mod state;
 mod visibility_system;
@@ -21,13 +23,12 @@ fn main() -> rltk::BError {
     let context = RltkBuilder::simple(WIDTH, HEIGHT)?
         .with_title("Roguelike Tutorial")
         .build()?;
-    let mut state = State {
-        world: World::new(),
-    };
+    let mut state = State::new();
 
     let map = Map::new(WIDTH, HEIGHT);
 
     state.world.register::<Player>();
+    state.world.register::<Monster>();
     state.world.register::<Position>();
     state.world.register::<Renderable>();
     state.world.register::<Viewshed>();
@@ -66,6 +67,7 @@ fn add_monsters(state: &mut State, map: &Map) {
         };
 
         state.world.create_entity()
+            .with(Monster {})
             .with(room.center())
             .with(Renderable {
                 glyph,

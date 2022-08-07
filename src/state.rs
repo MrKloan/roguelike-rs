@@ -4,25 +4,42 @@ use specs::prelude::*;
 use crate::{Player, Viewshed};
 use crate::components::{Position, Renderable};
 use crate::map::Map;
+use crate::monster::MonsterAI;
 use crate::player::player_input;
 use crate::visibility_system::VisibilitySystem;
 
+#[derive(PartialEq, Copy, Clone)]
+pub enum RunState {
+    Paused,
+    Running,
+}
+
 pub struct State {
     pub world: World,
+    pub run_state: RunState,
 }
 
 impl State {
+    pub fn new() -> State {
+        State {
+            world: World::new(),
+            run_state: RunState::Running,
+        }
+    }
+
     fn run_systems(&mut self) {
         VisibilitySystem {}.run_now(&self.world);
+        MonsterAI {}.run_now(&self.world);
         self.world.maintain();
     }
-}
 
-impl GameState for State {
-    fn tick(&mut self, context: &mut Rltk) {
+    fn paused(&mut self, context: &mut Rltk) -> RunState {
+        player_input(self, context)
+    }
+
+    fn running(&mut self, context: &mut Rltk) -> RunState {
         context.cls();
 
-        player_input(self, context);
         self.run_systems();
 
         let map = self.world.fetch::<Map>();
@@ -47,6 +64,17 @@ impl GameState for State {
                     );
                 }
             }
+        }
+
+        RunState::Paused
+    }
+}
+
+impl GameState for State {
+    fn tick(&mut self, context: &mut Rltk) {
+        self.run_state = match self.run_state {
+            RunState::Paused => self.paused(context),
+            RunState::Running => self.running(context)
         }
     }
 }
