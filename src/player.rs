@@ -18,13 +18,17 @@ pub fn player_input(state: &mut State, context: &mut Rltk) -> RunState {
     return match context.key {
         None => RunState::Paused,
         Some(key) => match key {
-            VirtualKeyCode::Left => try_move_player(-1, 0, &mut state.world),
-            VirtualKeyCode::Right => try_move_player(1, 0, &mut state.world),
-            VirtualKeyCode::Up => try_move_player(0, -1, &mut state.world),
-            VirtualKeyCode::Down => try_move_player(0, 1, &mut state.world),
+            VirtualKeyCode::Left | VirtualKeyCode::Numpad4 => try_move_player(-1, 0, &mut state.world),
+            VirtualKeyCode::Right | VirtualKeyCode::Numpad6 => try_move_player(1, 0, &mut state.world),
+            VirtualKeyCode::Up | VirtualKeyCode::Numpad8 => try_move_player(0, -1, &mut state.world),
+            VirtualKeyCode::Down | VirtualKeyCode::Numpad2 => try_move_player(0, 1, &mut state.world),
+            VirtualKeyCode::Numpad7 => try_move_player(-1, -1, &mut state.world),
+            VirtualKeyCode::Numpad9 => try_move_player(1, -1, &mut state.world),
+            VirtualKeyCode::Numpad1 => try_move_player(-1, 1, &mut state.world),
+            VirtualKeyCode::Numpad3 => try_move_player(1, 1, &mut state.world),
             _ => RunState::Paused
         },
-    }
+    };
 }
 
 fn try_move_player(delta_x: i32, delta_y: i32, world: &mut World) -> RunState {
