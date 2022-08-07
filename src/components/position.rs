@@ -2,7 +2,7 @@ use rltk::Point;
 use specs::prelude::*;
 use specs_derive::Component;
 
-#[derive(Component, Clone)]
+#[derive(Component, Clone, Copy)]
 pub struct Position {
     pub x: i32,
     pub y: i32,

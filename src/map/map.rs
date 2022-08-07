@@ -19,17 +19,20 @@ pub struct Map {
     pub height: i32,
     pub tiles: Vec<TileType>,
     pub rooms: Vec<Room>,
-    blocked_tiles: Vec<bool>,
+    pub blocked_tiles: Vec<bool>,
+    pub entities: Vec<Vec<Entity>>,
 }
 
 impl Map {
     pub fn new(width: i32, height: i32) -> Map {
+        let map_size = (width * height) as usize;
         let mut map = Map {
             width,
             height,
-            tiles: vec![TileType::Wall; (width * height) as usize],
-            blocked_tiles: vec![true; (width * height) as usize],
+            tiles: vec![TileType::Wall; map_size],
             rooms: Vec::new(),
+            blocked_tiles: vec![true; map_size],
+            entities: vec![Vec::new(); map_size],
         };
 
         const MAX_ROOMS: i32 = 30;
@@ -118,21 +121,6 @@ impl Map {
         }
     }
 
-    pub fn update_blocked_tiles(&mut self) {
-        for (index, _) in self.tiles.iter().enumerate() {
-            self.blocked_tiles[index] = self.is_opaque(index);
-        }
-    }
-
-    pub fn block_tile_at(&mut self, position: &Position) {
-        let index = self.index_of(position.x, position.y);
-        self.blocked_tiles[index] = true;
-    }
-
-    pub fn is_blocked(&self, index: usize) -> bool {
-        self.blocked_tiles[index]
-    }
-
     pub fn index_of(&self, x: i32, y: i32) -> usize {
         (y as usize * self.width as usize) + x as usize
     }
@@ -156,6 +144,16 @@ impl Map {
 
         let index = self.index_of(x, y);
         !self.blocked_tiles[index]
+    }
+
+    pub fn update_blocked_tiles(&mut self) {
+        for (index, _) in self.tiles.iter().enumerate() {
+            self.blocked_tiles[index] = self.is_opaque(index);
+        }
+    }
+
+    pub fn clear_entities(&mut self) {
+        self.entities.iter_mut().for_each(|entities| entities.clear());
     }
 
     pub fn draw(&self, world: &World, context: &mut Rltk) {

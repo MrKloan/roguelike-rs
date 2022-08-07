@@ -3,6 +3,7 @@
 use rltk::{RGB, RltkBuilder};
 use specs::prelude::*;
 
+use crate::combat::Statistics;
 use crate::components::{BlocksTile, Position, Renderable};
 use crate::map::Map;
 use crate::monster::Monster;
@@ -10,6 +11,7 @@ use crate::player::Player;
 use crate::state::State;
 use crate::visibility::Viewshed;
 
+mod combat;
 mod components;
 mod map;
 mod monster;
@@ -33,6 +35,7 @@ fn main() -> rltk::BError {
     state.world.register::<Player>();
     state.world.register::<Position>();
     state.world.register::<Renderable>();
+    state.world.register::<Statistics>();
     state.world.register::<Viewshed>();
 
     add_monsters(&mut state, &map);
@@ -57,6 +60,12 @@ fn add_player(state: &mut State, map: &Map) {
             background: RGB::named(rltk::BLACK),
         })
         .with(Viewshed::new(8, &map))
+        .with(Statistics {
+            max_health: 30,
+            health: 30,
+            defense: 2,
+            attack: 5,
+        })
         .build();
 }
 
@@ -82,6 +91,12 @@ fn add_monsters(state: &mut State, map: &Map) {
             })
             .with(Viewshed::new(8, map))
             .with(BlocksTile {})
+            .with(Statistics {
+                max_health: 16,
+                health: 16,
+                defense: 1,
+                attack: 3,
+            })
             .build();
     }
 }

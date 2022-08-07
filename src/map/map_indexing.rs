@@ -9,13 +9,23 @@ impl<'a> System<'a> for MapIndexingSystem {
     type SystemData = (
         WriteExpect<'a, Map>,
         ReadStorage<'a, Position>,
-        ReadStorage<'a, BlocksTile>
+        ReadStorage<'a, BlocksTile>,
+        Entities<'a>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut map, positions, blockers) = data;
+        let (mut map, positions, blockers, entities) = data;
 
         map.update_blocked_tiles();
-        (&positions, &blockers).join().for_each(|(position, _)| map.block_tile_at(position));
+        map.clear_entities();
+
+        (&entities, &positions).join().for_each(|(entity, position)| {
+            let index = map.index_of(position.x, position.y);
+            map.entities[index].push(entity);
+
+            if blockers.get(entity).is_some() {
+                map.blocked_tiles[index] = true;
+            }
+        });
     }
 }
