@@ -2,6 +2,7 @@ use rltk::console;
 use specs::prelude::*;
 use specs_derive::Component;
 
+use crate::{Map, Player};
 use crate::components::Position;
 use crate::visibility::Viewshed;
 
@@ -12,16 +13,23 @@ pub struct MonsterAI {}
 
 impl<'a> System<'a> for MonsterAI {
     type SystemData = (
+        ReadExpect<'a, Map>,
         ReadStorage<'a, Monster>,
+        ReadStorage<'a, Player>,
         ReadStorage<'a, Viewshed>,
         ReadStorage<'a, Position>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (monsters, viewsheds, positions) = data;
+        let (map, monsters, players, viewsheds, positions) = data;
 
-        for (_monster, _viewshed, _position) in (&monsters, &viewsheds, &positions).join() {
-            console::log("Monster considers their own existence");
+        for (_monster, monster_viewshed, _monster_position) in (&monsters, &viewsheds, &positions).join() {
+            for (_player, player_position) in (&players, &positions).join() {
+                let player_index = map.index_of(player_position.x, player_position.y);
+                if monster_viewshed.visible_tiles[player_index] {
+                    console::log("Monster shouts insults");
+                }
+            }
         }
     }
 }
