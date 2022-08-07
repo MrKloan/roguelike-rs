@@ -7,7 +7,9 @@ use crate::components::Position;
 use crate::visibility::Viewshed;
 
 #[derive(Component, Debug)]
-pub struct Monster {}
+pub struct Monster {
+    pub name: String,
+}
 
 pub struct MonsterAI {}
 
@@ -23,11 +25,11 @@ impl<'a> System<'a> for MonsterAI {
     fn run(&mut self, data: Self::SystemData) {
         let (map, monsters, players, viewsheds, positions) = data;
 
-        for (_monster, monster_viewshed, _monster_position) in (&monsters, &viewsheds, &positions).join() {
-            for (_player, player_position) in (&players, &positions).join() {
+        for (monster, monster_viewshed) in (&monsters, &viewsheds).join() {
+            for (player, player_position) in (&players, &positions).join() {
                 let player_index = map.index_of(player_position.x, player_position.y);
                 if monster_viewshed.visible_tiles[player_index] {
-                    console::log("Monster shouts insults");
+                    console::log(format!("{} shouts insults at {}!", monster.name, player.name));
                 }
             }
         }

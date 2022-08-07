@@ -10,7 +10,9 @@ use crate::map::{Map, TileType};
 use crate::state::RunState;
 
 #[derive(Component)]
-pub struct Player {}
+pub struct Player {
+    pub name: String,
+}
 
 pub fn player_input(state: &mut State, context: &mut Rltk) -> RunState {
     return match context.key {

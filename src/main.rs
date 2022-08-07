@@ -46,7 +46,9 @@ fn add_player(state: &mut State, map: &Map) {
     state
         .world
         .create_entity()
-        .with(Player {})
+        .with(Player {
+            name: String::from("Player")
+        })
         .with(map.starting_position())
         .with(Renderable {
             glyph: rltk::to_cp437('@'),
@@ -60,15 +62,17 @@ fn add_player(state: &mut State, map: &Map) {
 fn add_monsters(state: &mut State, map: &Map) {
     let mut rng = rltk::RandomNumberGenerator::new();
 
-    for room in map.rooms.iter().skip(1) {
+    for (index, room) in map.rooms.iter().enumerate().skip(1) {
         let roll = rng.roll_dice(1, 2);
-        let glyph = match roll {
-            1 => rltk::to_cp437('g'),
-            _ => rltk::to_cp437('o')
+        let (name, glyph) = match roll {
+            1 => ("Goblin", rltk::to_cp437('g')),
+            _ => ("Orc", rltk::to_cp437('o'))
         };
 
         state.world.create_entity()
-            .with(Monster {})
+            .with(Monster {
+                name: String::from(format!("{} #{}", name, index))
+            })
             .with(room.center())
             .with(Renderable {
                 glyph,
