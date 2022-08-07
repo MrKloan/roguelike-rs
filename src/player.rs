@@ -6,7 +6,7 @@ use specs_derive::Component;
 
 use crate::{State, Viewshed};
 use crate::components::Position;
-use crate::map::{Map, TileType};
+use crate::map::Map;
 use crate::state::RunState;
 
 #[derive(Component)]
@@ -36,7 +36,7 @@ fn try_move_player(delta_x: i32, delta_y: i32, world: &mut World) -> RunState {
 
     for (_player, position, viewshed) in (&players, &mut positions, &mut viewsheds).join() {
         let destination_index = map.index_of(position.x + delta_x, position.y + delta_y);
-        if map.tiles[destination_index] != TileType::Wall {
+        if !map.is_blocked(destination_index) {
             position.x = min(map.width - 1, max(0, position.x + delta_x));
             position.y = min(map.height - 1, max(0, position.y + delta_y));
             viewshed.should_update = true;

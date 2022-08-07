@@ -129,6 +129,10 @@ impl Map {
         self.blocked_tiles[index] = true;
     }
 
+    pub fn is_blocked(&self, index: usize) -> bool {
+        self.blocked_tiles[index]
+    }
+
     pub fn index_of(&self, x: i32, y: i32) -> usize {
         (y as usize * self.width as usize) + x as usize
     }
